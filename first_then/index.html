@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>קודם ואחר כך</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fef6ff 0%, #e8f5ff 45%, #f0fff4 100%);
+    font-family: 'Segoe UI', 'Comic Sans MS', cursive;
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  svg#stars { display: none; }
+  #board {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 500px;
+  }
+  .header { text-align: center; margin-bottom: 28px; }
+  .header .moon { font-size: 50px; margin-bottom: 4px; }
+  h1 {
+    font-size: 36px; font-weight: 900;
+    color: #7c3aed;
+    text-shadow: 0 2px 16px #c4b5fd66;
+    margin-bottom: 10px;
+  }
+  .btn-row { display: flex; justify-content: center; gap: 10px; }
+  button {
+    border-radius: 20px; padding: 5px 18px;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.2s; border: 2px solid;
+  }
+  #btn-edit {
+    background: transparent; color: #7c3aed;
+    border-color: #c4b5fd;
+  }
+  #btn-edit.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+  #btn-reset {
+    background: transparent; color: #999;
+    border-color: #ddd;
+  }
+  .panel {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(10px);
+    border: 2px solid #e9d5ff;
+    border-radius: 30px; padding: 22px 20px;
+    box-shadow: 0 4px 24px #7c3aed18;
+    margin-bottom: 14px;
+  }
+  .panel-header {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 18px;
+  }
+  .panel-header h2 {
+    font-size: 22px; font-weight: 900; color: #7c3aed;
+  }
+  #counter {
+    margin-right: auto;
+    background: #f3f0ff;
+    border: 1px solid transparent;
+    border-radius: 12px; padding: 2px 14px;
+    font-size: 15px; font-weight: 800;
+    color: #a78bfa;
+    transition: all 0.4s;
+  }
+  #counter.all-done {
+    background: rgba(76,175,80,0.25);
+    border-color: #4caf5077;
+    color: #a5f3a5;
+  }
+  .slots-row {
+    display: flex; justify-content: center;
+    gap: 14px; flex-wrap: wrap;
+  }
+  .slot-wrap {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+  }
+  .slot {
+    border-radius: 24px;
+    border: 3px dashed #c4b5fd;
+    background: #f8f5ff;
+    cursor: pointer; position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    user-select: none;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px; padding: 8px;
+  }
+  .slot.before-slot { width: 115px; height: 115px; }
+  .slot.after-slot  { width: 150px; height: 150px; border-radius: 32px; }
+  .slot:hover { transform: scale(1.03); }
+  .slot.drag-over {
+    border: 3px solid #7c3aed;
+    background: #ede9fe;
+    transform: scale(1.05);
+    box-shadow: 0 0 28px #7c3aed33;
+  }
+  .slot.has-image {
+    border: 3px solid #d8b4fe;
+    background: transparent;
+  }
+  .slot.done {
+    border-color: #4caf50;
+    transform: scale(1.07);
+    box-shadow: 0 4px 28px #4caf5055;
+  }
+  .slot img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .slot .checkmark {
+    position: absolute; inset: 0;
+    background: rgba(76,175,80,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .slot .remove-btn {
+    position: absolute; top: 6px; left: 6px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #ff4444; color: white;
+    border: none; cursor: pointer;
+    font-size: 15px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10; padding: 0;
+  }
+  .slot .placeholder-icon { font-size: 30px; opacity: 0.4; }
+  .slot .placeholder-text {
+    font-size: 11px; color: #a78bfa;
+    text-align: center; font-weight: 700;
+    line-height: 1.4;
+  }
+  .slot-label {
+    font-size: 13px; font-weight: 700;
+    color: #6b7280;
+  }
+  .arrow { text-align: center; font-size: 30px; opacity: 0.7; margin: 2px 0; }
+  #panel-after {
+    background: rgba(255,255,255,0.5);
+    border: 2px solid #e5e7eb;
+    border-radius: 30px; padding: 22px 20px;
+    opacity: 0.55; transition: all 0.5s; margin-top: 2px;
+  }
+  #panel-after.unlocked {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: #86efac;
+    opacity: 1;
+    box-shadow: 0 4px 24px #4caf5022;
+  }
+  #panel-after .panel-header h2 { color: #9ca3af; }
+  #panel-after.unlocked .panel-header h2 { color: #16a34a; }
+  .privacy-note {
+    text-align: center; margin-top: 20px;
+    font-size: 12px; color: #9ca3af;
+    display: flex; align-items: center;
+    justify-content: center; gap: 5px;
+  }
+  #celebration {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: radial-gradient(circle, #fde68a99 0%, #ffffff99 100%);
+    backdrop-filter: blur(4px);
+    flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  #celebration.show { display: flex; }
+  #celebration .cel-emoji { font-size: 90px; }
+  #celebration .cel-text {
+    font-size: 38px; font-weight: 900; color: #7c3aed;
+    text-shadow: 0 4px 24px #c4b5fd;
+    margin-top: 8px; text-align: center; line-height: 1.4;
+  }
+  #celebration .cel-text span { font-size: 28px; }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars SVG -->
+<svg id="stars"></svg>
+
+<!-- Celebration overlay -->
+<div id="celebration">
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-text">כל הכבוד!<br/><span>הגיע הזמן לפרס! 🎁</span></div>
+</div>
+
+<div id="board">
+  <!-- Header -->
+  <div class="header">
+
+    <h1>קודם ואחר כך</h1>
+    <div class="btn-row">
+      <button id="btn-edit" onclick="toggleEdit()">✏️ עריכה</button>
+      <button id="btn-reset" onclick="resetAll()">🔄 איפוס</button>
+    </div>
+  </div>
+
+  <!-- BEFORE panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span style="font-size:24px">🧹</span>
+      <h2>קודם</h2>
+      <div id="counter">0/3</div>
+    </div>
+    <div class="slots-row" id="before-slots"></div>
+  </div>
+
+  <div class="arrow">⬇️</div>
+
+  <!-- AFTER panel -->
+  <div id="panel-after">
+    <div class="panel-header">
+      <span style="font-size:24px">🎁</span>
+      <h2>אחר כך</h2>
+    </div>
+    <div class="slots-row" id="after-slots"></div>
+  </div>
+
+  <div class="privacy-note">🔒 התמונות נשארות על המכשיר שלך בלבד — לא נשלחות לשום מקום</div>
+</div>
+
+<script>
+// ---- State ----
+const BEFORE_IDS = ["b1","b2","b3"];
+const AFTER_IDS  = ["a1"];
+const LABELS = { b1:"בילגנתי", b2:"אני מסדר", b3:"סידרתי", a1:"הפרס 🎁" };
+
+let images   = {};   // id -> dataURL
+let done     = {};   // id -> bool
+let editMode = false;
+
+// ---- Stars ----
+(function createStars(){
+  const svg = document.getElementById("stars");
+  for(let i=0;i<22;i++){
+    const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx", (Math.random()*100)+"%");
+    c.setAttribute("cy", (Math.random()*100)+"%");
+    c.setAttribute("r",  (3+Math.random()*5));
+    c.setAttribute("fill","white");
+    c.setAttribute("opacity","0");
+    const a = document.createElementNS("http://www.w3.org/2000/svg","animate");
+    a.setAttribute("attributeName","opacity");
+    a.setAttribute("values","0;0.4;0");
+    a.setAttribute("dur",(2+Math.random()*3)+"s");
+    a.setAttribute("begin",(Math.random()*5)+"s");
+    a.setAttribute("repeatCount","indefinite");
+    c.appendChild(a);
+    svg.appendChild(c);
+  }
+})();
+
+// ---- Render ----
+function render() {
+  renderSlots("before-slots", BEFORE_IDS, false);
+  renderSlots("after-slots",  AFTER_IDS,  true);
+  updateCounter();
+  updateAfterPanel();
+}
+
+function renderSlots(containerId, ids, isAfter) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  ids.forEach(id => {
+    const wrap  = document.createElement("div");
+    wrap.className = "slot-wrap";
+
+    const slot  = document.createElement("div");
+    slot.className = "slot " + (isAfter ? "after-slot" : "before-slot");
+    slot.dataset.id = id;
+
+    if (images[id]) {
+      slot.classList.add("has-image");
+      if (done[id] && !isAfter) slot.classList.add("done");
+
+      // image
+      const img = document.createElement("img");
+      img.src = images[id];
+      slot.appendChild(img);
+
+      // checkmark
+      if (done[id] && !isAfter) {
+        const chk = document.createElement("div");
+        chk.className = "checkmark";
+        chk.textContent = "✓";
+        slot.appendChild(chk);
+      }
+
+      // remove button
+      if (editMode) {
+        const btn = document.createElement("button");
+        btn.className = "remove-btn";
+        btn.textContent = "×";
+        btn.onclick = (e) => { e.stopPropagation(); removeImage(id); };
+        slot.appendChild(btn);
+      }
+
+      // toggle on click (only before, not edit)
+      if (!isAfter && !editMode) {
+        slot.onclick = () => toggleDone(id);
+      }
+
+    } else {
+      // placeholder
+      const icon = document.createElement("span");
+      icon.className = "placeholder-icon";
+      icon.textContent = "🖼️";
+      const txt = document.createElement("span");
+      txt.className = "placeholder-text";
+      txt.textContent = "גרור תמונה\nאו לחץ";
+      slot.appendChild(icon);
+      slot.appendChild(txt);
+
+      // click to pick file
+      slot.onclick = () => pickFile(id);
+    }
+
+    // drag & drop
+    slot.addEventListener("dragover", e => {
+      e.preventDefault();
+      slot.classList.add("drag-over");
+      if(slot.querySelector(".placeholder-text"))
+        slot.querySelector(".placeholder-text").textContent = "שחרר!";
+    });
+    slot.addEventListener("dragleave", () => {
+      slot.classList.remove("drag-over");
+      if(slot.querySelector(".placeholder-text"))
+        slot.querySelector(".placeholder-text").textContent = "גרור תמונה\nאו לחץ";
+    });
+    slot.addEventListener("drop", e => {
+      e.preventDefault();
+      slot.classList.remove("drag-over");
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith("image/")) loadFile(file, id);
+    });
+
+    const label = document.createElement("span");
+    label.className = "slot-label";
+    label.textContent = LABELS[id];
+
+    wrap.appendChild(slot);
+    wrap.appendChild(label);
+    container.appendChild(wrap);
+  });
+}
+
+function updateCounter() {
+  const total = BEFORE_IDS.length;
+  const count = BEFORE_IDS.filter(id => done[id]).length;
+  const el = document.getElementById("counter");
+  el.textContent = count + "/" + total;
+  el.classList.toggle("all-done", count === total && total > 0);
+}
+
+function updateAfterPanel() {
+  const allDone = BEFORE_IDS.every(id => done[id]) && BEFORE_IDS.length > 0;
+  document.getElementById("panel-after").classList.toggle("unlocked", allDone);
+}
+
+// ---- Actions ----
+function toggleDone(id) {
+  done[id] = !done[id];
+  render();
+  if (BEFORE_IDS.every(id => done[id])) celebrate();
+}
+
+function removeImage(id) {
+  delete images[id];
+  delete done[id];
+  render();
+}
+
+function pickFile(id) {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (file) loadFile(file, id);
+  };
+  input.click();
+}
+
+function loadFile(file, id) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    images[id] = ev.target.result;
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+function toggleEdit() {
+  editMode = !editMode;
+  const btn = document.getElementById("btn-edit");
+  btn.textContent = editMode ? "✓ סיום עריכה" : "✏️ עריכה";
+  btn.classList.toggle("active", editMode);
+  document.getElementById("btn-reset").style.display = editMode ? "none" : "";
+  render();
+}
+
+function resetAll() {
+  done = {};
+  render();
+}
+
+function celebrate() {
+  const el = document.getElementById("celebration");
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 3200);
+}
+
+// ---- Init ----
+render();
+</script>
+</body>
+</html>
