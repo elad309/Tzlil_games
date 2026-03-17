@@ -589,6 +589,21 @@
       opacity: 0.95;
     }
 
+    .app-footer {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      padding: 12px 8px 20px;
+      margin-top: 20px;
+    }
+    
+    @media (max-width: 600px) {
+      .app-footer {
+        font-size: 12px;
+        padding-bottom: 16px;
+      }
+    }
+
     @keyframes fall {
       to {
         transform: translateY(110vh) rotate(540deg);
@@ -1355,5 +1370,8 @@
     updateSummary();
     updateHud();
   </script>
+  <footer class="app-footer">
+    Created by Tzlil Cohen – Applied Behavior Analyst
+  </footer>
 </body>
 </html>
