@@ -14,6 +14,8 @@
   body {
     font-family:'Varela Round',sans-serif;
     background:#FFF9E6;
+    display: flex;
+    flex-direction: column;
     min-height:100vh;
     background-image:
       radial-gradient(circle at 10% 20%, #ffe08233 0%, transparent 40%),
@@ -24,7 +26,12 @@
   @keyframes floatStar{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(16deg)}}
 
   .page{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:16px 10px 32px;min-height:100vh;}
-
+  .app-footer {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    padding: 16px 10px 24px;
+  }
   h1{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,4.5vw,2.8rem);color:var(--orange);
      text-shadow:3px 3px 0 #fff,5px 5px 0 var(--yellow);text-align:center;margin-bottom:4px;}
   .subtitle{color:#888;font-size:.95rem;text-align:center;margin-bottom:20px;}
@@ -502,5 +509,10 @@ function removeConfetti(){document.querySelectorAll('.confetti-piece').forEach(e
   }
 })();
 </script>
+
+<footer class="app-footer">
+  נוצר על ידי צליל כהן – מנתחת התנהגות מוסמכת
+</footer>
+
 </body>
 </html>
