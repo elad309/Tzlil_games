@@ -1,0 +1,155 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .wrap { padding: 1rem 0.5rem 2rem; direction: rtl; font-family: var(--font-sans); }
+  h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .goal-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; margin: 10px 0; font-size: 12px; color: var(--color-text-secondary); line-height: 1.7; }
+  .goal-box strong { color: var(--color-text-primary); font-weight: 500; }
+  .legend { display: flex; gap: 16px; margin: 8px 0 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+  .badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .bv { background: #EAF3DE; color: #3B6D11; }
+  .bx { background: #FCEBEB; color: #A32D2D; }
+  .be { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); font-size: 9px; }
+  .week-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .week-row label { font-size: 13px; color: var(--color-text-secondary); white-space: nowrap; }
+  .week-input { border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 5px 10px; font-size: 13px; width: 170px; background: var(--color-background-primary); color: var(--color-text-primary); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 0.5px solid var(--color-border-tertiary); padding: 5px 6px; text-align: center; vertical-align: middle; }
+  th { background: var(--color-background-secondary); color: var(--color-text-secondary); font-weight: 500; font-size: 11.5px; white-space: nowrap; }
+  .col-sec { width: 88px; }
+  .col-sk { width: 165px; }
+  .col-d { width: 46px; }
+  td.sec { background: #EEEDFE; color: #3C3489; font-weight: 500; font-size: 11px; text-align: right; padding: 5px 8px; vertical-align: top; }
+  td.sk { text-align: right; color: var(--color-text-primary); padding: 5px 8px; font-size: 12px; line-height: 1.45; }
+  td.sk.sub { color: var(--color-text-secondary); padding-right: 16px; }
+  .dc { cursor: pointer; user-select: none; }
+  .dc:hover { background: var(--color-background-secondary); }
+  .dc .inn { display: flex; align-items: center; justify-content: center; min-height: 26px; }
+  .mv { color: #3B6D11; font-size: 14px; font-weight: 700; }
+  .mx { color: #A32D2D; font-size: 14px; font-weight: 700; }
+  .notes-area { margin-top: 14px; }
+  .notes-area label { font-size: 13px; color: var(--color-text-secondary); display: block; margin-bottom: 6px; font-weight: 500; }
+  .notes-area textarea { width: 100%; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; font-size: 13px; background: var(--color-background-primary); color: var(--color-text-primary); resize: vertical; min-height: 90px; font-family: var(--font-sans); direction: rtl; }
+  .print-btn { margin-top: 12px; padding: 7px 16px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; cursor: pointer; }
+  .print-btn:hover { background: var(--color-background-secondary); }
+  @media print { .print-btn { display: none; } }
+</style>
+
+<div class="wrap">
+  <h2>טבלת מעקב שבועית עידן</h2>
+
+  <div class="goal-box">
+    <strong>מטרה:</strong> עידן יבצע לפחות 3 שלבים באופן עצמאי מתוך רצף החלפת החיתול, וישלים את רצף שטיפת הידיים בסיוע פיזי קל בלבד.<br>
+    <strong>הנחיות:</strong> זמן ביצוע הרישום מזמן ההגעה הביתה עד לשינה. פעם ביום יגיע עידן אל השירותים בליווי הורה לניסיון עשיית צרכיו. נסמן <strong>✓</strong> כאשר המיומנות בוצעה בהצלחה / היענות (גם אם נדרש סיוע פיזי קל או תזכורת). נסמן <strong>✗</strong> כאשר הייתה התנגדות משמעותית או סרבנות. נשאיר ריק אם לא תורגל / לא היה רלוונטי.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="badge bv">✓</span> ביצוע / היענות (גם עם סיוע קל)</div>
+    <div class="legend-item"><span class="badge bx">✗</span> התנגדות / סרבנות</div>
+    <div class="legend-item"><span class="badge be">ריק</span> לא תורגל / לא רלוונטי</div>
+  </div>
+
+  <div class="week-row">
+    <label>שבוע מתאריך:</label>
+    <input class="week-input" type="text" placeholder="__ / __ / ______" id="weekDate" />
+  </div>
+
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th class="col-sec">חלק בתהליך</th>
+          <th class="col-sk" style="text-align:right;">המיומנות / השלב</th>
+          <th class="col-d">יום א׳</th>
+          <th class="col-d">יום ב׳</th>
+          <th class="col-d">יום ג׳</th>
+          <th class="col-d">יום ד׳</th>
+          <th class="col-d">יום ה׳</th>
+          <th class="col-d">יום ו׳</th>
+          <th class="col-d">שבת</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="notes-area">
+    <label>הערות:</label>
+    <textarea id="notes" placeholder='למשל: "ביום ג׳ בכה כשהתבקש להוריד מכנסיים", או "ביום ה׳ ביקש לזרוק את החיתול בעצמו"'></textarea>
+  </div>
+
+  <button class="print-btn" onclick="window.print()"><i class="ti ti-printer" aria-hidden="true"></i> הדפסה</button>
+</div>
+
+<script>
+const rows = [
+  { section: "היענות כללית", skill: "היענות להליכה לשירותים (ללא התנגדות)", sub: false },
+  { section: "החלפת חיתול", skill: "הורדת מכנסיים (עצמאי או בסיוע קל)", sub: false },
+  { section: "",             skill: "השתתפות בניקיון (מסירת מגבון, שימוש במגבון)", sub: false },
+  { section: "",             skill: "הרמת מכנסיים", sub: false },
+  { section: "",             skill: "זריקת החיתול המלוכלך לפח", sub: false },
+  { section: "חשיפה (אחה\"צ / סופ\"ש)", skill: "הסכמה לישיבה על הישבנון / סיר", sub: false },
+  { section: "",                         skill: "שהות ללא חיתול (כ-15 דק׳)", sub: false },
+  { section: "רצף שטיפת ידיים", skill: "1. פתיחת הברז", sub: true },
+  { section: "",                  skill: "2. שטיפת הידיים במים", sub: true },
+  { section: "",                  skill: "3. סיבון הידיים", sub: true },
+  { section: "",                  skill: "4. שטיפת הסבון מהידיים", sub: true },
+  { section: "",                  skill: "5. סגירת הברז", sub: true },
+  { section: "",                  skill: "6. ניגוב הידיים", sub: true },
+];
+
+const DAYS = 7;
+const state = {};
+
+function cycleState(key) {
+  const cur = state[key] || "e";
+  state[key] = cur === "e" ? "v" : cur === "v" ? "x" : "e";
+  renderCell(key);
+}
+
+function renderCell(key) {
+  const el = document.getElementById("c-" + key);
+  if (!el) return;
+  const v = state[key] || "e";
+  if (v === "v") el.innerHTML = '<span class="mv">✓</span>';
+  else if (v === "x") el.innerHTML = '<span class="mx">✗</span>';
+  else el.innerHTML = '';
+}
+
+function buildTable() {
+  const tbody = document.getElementById("tableBody");
+  let prevSec = null;
+  rows.forEach((row, ri) => {
+    const tr = document.createElement("tr");
+    const secTd = document.createElement("td");
+    if (row.section && row.section !== prevSec) {
+      secTd.className = "sec";
+      secTd.textContent = row.section;
+      prevSec = row.section;
+    }
+    tr.appendChild(secTd);
+    const skTd = document.createElement("td");
+    skTd.className = row.sub ? "sk sub" : "sk";
+    skTd.textContent = row.skill;
+    tr.appendChild(skTd);
+    for (let d = 0; d < DAYS; d++) {
+      const key = ri + "-" + d;
+      state[key] = "e";
+      const td = document.createElement("td");
+      td.className = "dc";
+      td.title = "לחץ לשינוי";
+      const inn = document.createElement("div");
+      inn.className = "inn";
+      inn.id = "c-" + key;
+      td.appendChild(inn);
+      td.addEventListener("click", () => cycleState(key));
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+buildTable();
+</script>
